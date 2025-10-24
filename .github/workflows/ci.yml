@@ -10,8 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     env:
       START_TIME: ${{ github.event.head_commit.timestamp }}
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -28,13 +30,13 @@ jobs:
       - name: Run pre-commit checks
         run: pre-commit run --all-files
 
-      - name: Run Django tests
+      - name: Run Django checks and tests
         env:
           DJANGO_SETTINGS_MODULE: TwitterUnfollow.settings
-          PYTHONPATH: .
+          PYTHONPATH: ${{ github.workspace }}
         run: |
           python manage.py check
-          python manage.py test
+          python manage.py test --noinput
 
       - name: Collect build metadata
         id: meta
@@ -42,7 +44,9 @@ jobs:
           echo "author=$(git log -1 --pretty=format:'%an <%ae>')" >> $GITHUB_OUTPUT
           echo "message=$(git log -1 --pretty=%s)" >> $GITHUB_OUTPUT
           echo "end_time=$(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_OUTPUT
-          echo "duration=$(($(date +%s) - $(date -d '${{ env.START_TIME }}' +%s))) seconds" >> $GITHUB_OUTPUT
+          # safer duration calculation
+          start=$(date -d "${{ env.START_TIME }}" +%s 2>/dev/null || date -j -f "%Y-%m-%dT%H:%M:%S" "${{ env.START_TIME }}" +%s)
+          echo "duration=$(($(date +%s) - start)) seconds" >> $GITHUB_OUTPUT
 
       - name: Send success email
         if: success()
@@ -53,8 +57,9 @@ jobs:
           username: ${{ secrets.SMTP_USERNAME }}
           password: ${{ secrets.SMTP_PASSWORD }}
           subject: "✅ CI Passed: TwitterUnfollow Build Successful"
-          to: ${{ secrets.EMAIL_TO }}
           from: ${{ secrets.EMAIL_FROM }}
+          to: ${{ secrets.EMAIL_TO }}
+          secure: true
           body: |
             ✅ **Build Summary**
 
@@ -74,6 +79,6 @@ jobs:
 
             🧪 All pre-commit checks and Django tests have passed successfully.
 
-            --  
+            --
             CI Bot 🤖 (GitHub Actions)
             TwitterUnfollow Project

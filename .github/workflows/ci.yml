@@ -28,7 +28,8 @@ jobs:
 
       - name: Run Django tests
         env:
-          DJANGO_SETTINGS_MODULE: config.settings
+          DJANGO_SETTINGS_MODULE: TwitterUnfollow.settings
+          PYTHONPATH: .
         run: |
           python manage.py check
           python manage.py test

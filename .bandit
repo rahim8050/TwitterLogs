@@ -1,0 +1,24 @@
+# .bandit
+# Bandit security configuration
+# Enforces scans only on relevant app directories while ignoring virtual envs, test data, and static assets.
+
+skips:
+  - B101  # assert statements (you can enable this later if you prefer stricter checks)
+
+targets:
+  - TwitterUnfollow
+  - twitterlogs
+
+exclude:
+  - venv
+  - .venv
+  - env
+  - tests
+  - migrations
+  - __pycache__
+  - node_modules
+  - static
+  - media
+  - "*.env"
+  - ".env"
+  - settings.py

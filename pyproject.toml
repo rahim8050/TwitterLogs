@@ -1,0 +1,8 @@
+[tool.mypy]
+plugins = ["mypy_django_plugin.main"]
+disallow_untyped_defs = true
+strict_optional = true
+ignore_missing_imports = true
+
+[tool.django-stubs]
+django_settings_module = "TwitterUnfollow.settings"

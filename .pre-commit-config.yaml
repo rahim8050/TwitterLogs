@@ -1,0 +1,35 @@
+repos:
+  - repo: https://github.com/psf/black
+    rev: 24.8.0
+    hooks:
+      - id: black
+        language_version: python
+
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.6.5
+    hooks:
+      - id: ruff
+        args: [--fix]
+        language_version: python
+
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.9
+    hooks:
+      - id: bandit
+        args: ["-c", "pyproject.toml", "-r", "."]
+        language_version: python
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.11.1
+    hooks:
+      - id: mypy
+        name: mypy (Django)
+        additional_dependencies:
+          - django
+          - django-stubs
+          - mypy_django_plugin
+        args: ["--config-file=mypy.ini"]
+        pass_filenames: false
+        language_version: python
+        env:
+          PYTHONPATH: "C:\\Users\\rahim\\django_projects\\TwitterUnfollow"

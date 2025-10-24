@@ -20,6 +20,7 @@ pathspec==0.12.1
 platformdirs==4.5.0
 pre_commit==4.3.0
 Pygments==2.19.2
+python-dotenv==1.1.1
 pytokens==0.2.0
 PyYAML==6.0.3
 rich==14.2.0

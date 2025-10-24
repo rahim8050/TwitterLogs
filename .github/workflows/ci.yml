@@ -8,6 +8,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      START_TIME: ${{ github.event.head_commit.timestamp }}
     steps:
       - uses: actions/checkout@v4
 
@@ -33,3 +35,45 @@ jobs:
         run: |
           python manage.py check
           python manage.py test
+
+      - name: Collect build metadata
+        id: meta
+        run: |
+          echo "author=$(git log -1 --pretty=format:'%an <%ae>')" >> $GITHUB_OUTPUT
+          echo "message=$(git log -1 --pretty=%s)" >> $GITHUB_OUTPUT
+          echo "end_time=$(date -u '+%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_OUTPUT
+          echo "duration=$(($(date +%s) - $(date -d '${{ env.START_TIME }}' +%s))) seconds" >> $GITHUB_OUTPUT
+
+      - name: Send success email
+        if: success()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.SMTP_HOST }}
+          server_port: ${{ secrets.SMTP_PORT }}
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: "✅ CI Passed: TwitterUnfollow Build Successful"
+          to: ${{ secrets.EMAIL_TO }}
+          from: ${{ secrets.EMAIL_FROM }}
+          body: |
+            ✅ **Build Summary**
+
+            **Repository:** ${{ github.repository }}
+            **Branch:** ${{ github.ref_name }}
+            **Commit SHA:** ${{ github.sha }}
+            **Commit Message:** ${{ steps.meta.outputs.message }}
+            **Commit Author:** ${{ steps.meta.outputs.author }}
+
+            **Workflow:** ${{ github.workflow }}
+            **Job:** ${{ github.job }}
+            **Run ID:** ${{ github.run_id }}
+
+            **Start Time:** ${{ env.START_TIME }}
+            **End Time:** ${{ steps.meta.outputs.end_time }}
+            **Duration:** ${{ steps.meta.outputs.duration }}
+
+            🧪 All pre-commit checks and Django tests have passed successfully.
+
+            --  
+            CI Bot 🤖 (GitHub Actions)
+            TwitterUnfollow Project

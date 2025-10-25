@@ -60,7 +60,7 @@ jobs:
           password: ${{ secrets.SMTP_PASSWORD }}
           from: "${{ secrets.EMAIL_FROM }}"
           to: "${{ secrets.EMAIL_TO }}"
-          secure: true
+          secure: false
           subject: "✅ CI Passed: TwitterUnfollow Build Successful"
           body: |
             ✅ **Build Summary**
